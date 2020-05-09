@@ -1,2 +1,2 @@
-# SqlConnector
-Library for connecting to a generic SQL database, used by tobymeehan.com.
+# Sql Connector
+The purpose of this library is not primarily to provide a data access layer for projects, since these are often highly specific to the project in question, but rather a common interface that multiple projects can use, and have their own implementations of. There is a default implementation provided, which can perform basic CRUD operations on a generic database, but it is generic, and likely won't fulfull all the needs of applications that use it. As in the description, this is designed for my own personal use.
