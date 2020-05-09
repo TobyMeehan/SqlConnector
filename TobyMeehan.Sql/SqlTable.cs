@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection;
 using System.Text;
 using TobyMeehan.Sql.QueryBuilder;
 
@@ -20,5 +21,25 @@ namespace TobyMeehan.Sql
         }
 
         private string TableName => _nameResolver.ResolveTable(typeof(T));
+
+        private string GetParameterValue(PropertyInfo property, object obj)
+        {
+            if (property.GetValue(obj) is SqlString s)
+            {
+                return s;
+            }
+            else
+            {
+                return $"@{property.Name}";
+            }
+        }
+
+        private IEnumerable<string> GetParameterValues(object obj)
+        {
+            foreach (var property in obj.GetType().GetProperties())
+            {
+                yield return GetParameterValue(property, obj);
+            }
+        }
     }
 }

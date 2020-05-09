@@ -77,5 +77,21 @@ namespace TobyMeehan.Sql
         /// <param name="value"></param>
         /// <returns></returns>
         Task<int> InsertAsync(object value);
+
+        /// <summary>
+        /// Updates the records matching the provided expression to the provided values.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        int Update(Expression<Predicate<T>> expression, object value);
+
+        /// <summary>
+        /// Updates the records matching the provided expression to the provided values asynchronously.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        Task<int> UpdateAsync(Expression<Predicate<T>> expression, object value);
     }
 }

@@ -17,24 +17,9 @@ namespace TobyMeehan.Sql
             string sql = $"INSERT INTO {TableName} " +
                 $"({string.Join(", ", properties)})" +
                 $" VALUES " +
-                $"({string.Join(", ", GetValues(parameters))})";
+                $"({string.Join(", ", GetParameterValues(parameters))})";
 
             return sql;
-        }
-
-        private IEnumerable<string> GetValues(object obj)
-        {
-            foreach (var property in obj.GetType().GetProperties())
-            {
-                if (property.GetValue(obj) is SqlString s)
-                {
-                    yield return s;
-                }
-                else
-                {
-                    yield return $"@{property.Name}";
-                }
-            }
         }
 
         public virtual int Insert(object value)
