@@ -15,7 +15,7 @@ namespace TobyMeehan.Sql
             var properties = parameters.GetType().GetProperties().Select(x => x.Name);
 
             string sql = $"INSERT INTO {TableName} " +
-                $"({string.Join(", ", properties)})" +
+                $"({string.Join(", ", properties.Select(x => _nameResolver.ResolveColumn(x)))})" +
                 $" VALUES " +
                 $"({string.Join(", ", GetParameterValues(parameters))})";
 

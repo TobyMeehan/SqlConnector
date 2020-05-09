@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace TobyMeehan.Sql
 
         private string GetSelectQuery(params string[] columns)
         {
-            string target = string.Join(",", columns);
+            string target = string.Join(",", columns.Select(x => _nameResolver.ResolveColumn(x)));
 
             return $"SELECT {target} FROM {TableName}";
         }
