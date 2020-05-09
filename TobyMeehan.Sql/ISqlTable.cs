@@ -63,5 +63,9 @@ namespace TobyMeehan.Sql
         /// <param name="expression"></param>
         /// <returns></returns>
         Task<IEnumerable<T>> SelectByAsync(Expression<Predicate<T>> expression, params string[] columns);
+
+        int Insert(object value);
+
+        Task<int> InsertAsync(object value);
     }
 }
