@@ -37,12 +37,12 @@ namespace TobyMeehan.Sql
             }
         }
 
-        public int Insert(object value)
+        public virtual int Insert(object value)
         {
             return _connection.Execute(GetInsertQuery(value), value);
         }
 
-        public Task<int> InsertAsync(object value)
+        public virtual Task<int> InsertAsync(object value)
         {
             return _connection.ExecuteAsync(GetInsertQuery(value), value);
         }

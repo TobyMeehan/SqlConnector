@@ -19,22 +19,22 @@ namespace TobyMeehan.Sql
             return $"SELECT {target} FROM {TableName}";
         }
 
-        public IEnumerable<T> Select()
+        public virtual IEnumerable<T> Select()
         {
             return _connection.Query<T>(GetSelectQuery());
         }
 
-        public Task<IEnumerable<T>> SelectAsync()
+        public virtual Task<IEnumerable<T>> SelectAsync()
         {
             return _connection.QueryAsync<T>(GetSelectQuery());
         }
 
-        public IEnumerable<T> Select(params string[] columns)
+        public virtual IEnumerable<T> Select(params string[] columns)
         {
             return _connection.Query<T>(GetSelectQuery(columns));
         }
 
-        public Task<IEnumerable<T>> SelectAsync(params string[] columns)
+        public virtual Task<IEnumerable<T>> SelectAsync(params string[] columns)
         {
             return _connection.QueryAsync<T>(GetSelectQuery(columns));
         }
@@ -48,22 +48,22 @@ namespace TobyMeehan.Sql
             return $"{GetSelectQuery(columns)} WHERE {whereClause.Sql}";
         }
 
-        public IEnumerable<T> SelectBy(Expression<Predicate<T>> expression)
+        public virtual IEnumerable<T> SelectBy(Expression<Predicate<T>> expression)
         {
             return _connection.Query<T>(SelectBy(expression, out object parameters, "*"), parameters);
         }
 
-        public IEnumerable<T> SelectBy(Expression<Predicate<T>> expression, params string[] columns)
+        public virtual IEnumerable<T> SelectBy(Expression<Predicate<T>> expression, params string[] columns)
         {
             return _connection.Query<T>(SelectBy(expression, out object parameters, columns), parameters);
         }
 
-        public Task<IEnumerable<T>> SelectByAsync(Expression<Predicate<T>> expression)
+        public virtual Task<IEnumerable<T>> SelectByAsync(Expression<Predicate<T>> expression)
         {
             return _connection.QueryAsync<T>(SelectBy(expression, out object parameters, "*"), parameters);
         }
 
-        public Task<IEnumerable<T>> SelectByAsync(Expression<Predicate<T>> expression, params string[] columns)
+        public virtual Task<IEnumerable<T>> SelectByAsync(Expression<Predicate<T>> expression, params string[] columns)
         {
             return _connection.QueryAsync<T>(SelectBy(expression, out object parameters, columns), parameters);
         }
