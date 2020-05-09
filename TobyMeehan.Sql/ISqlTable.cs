@@ -93,5 +93,19 @@ namespace TobyMeehan.Sql
         /// <param name="value"></param>
         /// <returns></returns>
         Task<int> UpdateAsync(Expression<Predicate<T>> expression, object value);
+
+        /// <summary>
+        /// Removes the records matching the provided expression.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        int Delete(Expression<Predicate<T>> expression);
+
+        /// <summary>
+        /// Removes the records matching the provided expression asynchronously.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        Task<int> DeleteAsync(Expression<Predicate<T>> expression);
     }
 }
