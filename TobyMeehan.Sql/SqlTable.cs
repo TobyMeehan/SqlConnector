@@ -11,13 +11,11 @@ namespace TobyMeehan.Sql
     {
         private readonly IDbConnection _connection;
         private readonly IDbNameResolver _nameResolver;
-        private readonly IWhereBuilder _whereBuilder;
 
-        public SqlTable(IDbConnection connection, IDbNameResolver nameResolver, IWhereBuilder whereBuilder)
+        public SqlTable(IDbConnection connection, IDbNameResolver nameResolver)
         {
             _connection = connection;
             _nameResolver = nameResolver;
-            _whereBuilder = whereBuilder;
         }
 
         private string TableName => _nameResolver.ResolveTable(typeof(T));
