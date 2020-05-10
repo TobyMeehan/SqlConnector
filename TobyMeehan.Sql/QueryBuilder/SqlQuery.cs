@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using TobyMeehan.Sql.Extensions;
 
@@ -44,6 +45,26 @@ namespace TobyMeehan.Sql.QueryBuilder
         private int _parameterCount = 1;
         private Dictionary<string, object> _parameters = new Dictionary<string, object>();
 
+        private static string GetParameterValue(PropertyInfo property, object obj)
+        {
+            if (property.GetValue(obj) is SqlString s)
+            {
+                return s;
+            }
+            else
+            {
+                return $"@{property.Name}";
+            }
+        }
+
+        private static IEnumerable<string> GetParameterValues(object obj)
+        {
+            foreach (var property in obj.GetType().GetProperties())
+            {
+                yield return GetParameterValue(property, obj);
+            }
+        }
+
         public SqlQuery Where<T>(Expression<Predicate<T>> expression)
         {
             return new SqlQuery(this, new WhereSqlClause<T>(expression, ref _parameterCount));
@@ -53,6 +74,18 @@ namespace TobyMeehan.Sql.QueryBuilder
         public SqlQuery Select(params string[] columns)
         {
             return new SqlQuery(this, SqlClause.FromSql($"SELECT {string.Join(", ", columns)} FROM {_tableName}"), 0);
+        }
+
+        public SqlQuery Insert(object values)
+        {
+            var properties = values.GetType().GetProperties().Select(x => x.Name);
+
+            string sql = $"INSERT INTO {_tableName} " +
+                $"({string.Join(", ", properties)})" +
+                $" VALUES " +
+                $"({string.Join(", ", GetParameterValues(values))})";
+
+            return new SqlQuery(this, SqlClause.FromSql(sql), 0);
         }
 
         public string AsSql()

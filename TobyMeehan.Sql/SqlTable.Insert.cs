@@ -5,31 +5,27 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TobyMeehan.Sql.QueryBuilder;
 
 namespace TobyMeehan.Sql
 {
     public partial class SqlTable<T> : ISqlTable<T>
     {
-        private string GetInsertQuery(object parameters)
+        private string GetInsertQuery(object values)
         {
-            var properties = parameters.GetType().GetProperties().Select(x => x.Name);
-
-            string sql = $"INSERT INTO {TableName} " +
-                $"({string.Join(", ", properties.Select(x => _nameResolver.ResolveColumn(x)))})" +
-                $" VALUES " +
-                $"({string.Join(", ", GetParameterValues(parameters))})";
-
-            return sql;
+            return new SqlQuery(TableName)
+                .Insert(values)
+                .AsSql();
         }
 
-        public virtual int Insert(object value)
+        public virtual int Insert(object values)
         {
-            return _connection.Execute(GetInsertQuery(value), value);
+            return _connection.Execute(GetInsertQuery(values), values);
         }
 
-        public virtual Task<int> InsertAsync(object value)
+        public virtual Task<int> InsertAsync(object values)
         {
-            return _connection.ExecuteAsync(GetInsertQuery(value), value);
+            return _connection.ExecuteAsync(GetInsertQuery(values), values);
         }
     }
 }
