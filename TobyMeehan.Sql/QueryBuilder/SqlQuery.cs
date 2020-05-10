@@ -35,35 +35,14 @@ namespace TobyMeehan.Sql.QueryBuilder
                 _clauses.Insert(index.Value, addition);
             }
 
-            foreach (var param in addition.Parameters)
-            {
-                _parameters.Add(param.Key, param.Value);
-            }
+            _parameters = _parameters.Union(addition.Parameters).ToDictionary(x => x.Key, x => x.Value);
+
+            _parameterCount = _parameters.Count + 1;
         }
 
         private List<SqlClause> _clauses = new List<SqlClause>();
         private int _parameterCount = 1;
         private Dictionary<string, object> _parameters = new Dictionary<string, object>();
-
-        private static string GetParameterValue(PropertyInfo property, object obj)
-        {
-            if (property.GetValue(obj) is SqlString s)
-            {
-                return s;
-            }
-            else
-            {
-                return $"@{property.Name}";
-            }
-        }
-
-        private static IEnumerable<string> GetParameterValues(object obj)
-        {
-            foreach (var property in obj.GetType().GetProperties())
-            {
-                yield return GetParameterValue(property, obj);
-            }
-        }
 
         public SqlQuery Where<T>(Expression<Predicate<T>> expression)
         {
@@ -73,19 +52,41 @@ namespace TobyMeehan.Sql.QueryBuilder
         public SqlQuery Select() => Select("*");
         public SqlQuery Select(params string[] columns)
         {
-            return new SqlQuery(this, SqlClause.FromSql($"SELECT {string.Join(", ", columns)} FROM {_tableName}"), 0);
+            return new SqlQuery(this, new SqlClause($"SELECT {string.Join(", ", columns)} FROM {_tableName}"), 0);
         }
 
         public SqlQuery Insert(object values)
         {
             var properties = values.GetType().GetProperties().Select(x => x.Name);
 
-            string sql = $"INSERT INTO {_tableName} " +
-                $"({string.Join(", ", properties)})" +
-                $" VALUES " +
-                $"({string.Join(", ", GetParameterValues(values))})";
+            int i = _parameterCount;
 
-            return new SqlQuery(this, SqlClause.FromSql(sql), 0);
+            SqlClause sql = SqlClause.Join("",
+                new SqlClause($"INSERT INTO {_tableName} ("),
+                SqlClause.Join(", ", properties.Select(x => new SqlClause(x))),
+                new SqlClause(") VALUES "),
+                SqlClause.FromCollection(ref i, values.ToDictionary().Select(x => x.Value)));
+
+            return new SqlQuery(this, sql, 0);
+        }
+
+        public SqlQuery Update(object values)
+        {
+            var properties = values.GetType().GetProperties();
+
+            int i = _parameterCount;
+
+            SqlClause updateClause = new SqlClause($"UPDATE {_tableName} SET");
+
+            List<SqlClause> clauses = new List<SqlClause>();
+
+            foreach (var item in properties)
+            {
+                clauses.Add(SqlClause.Join(" = ", new SqlClause(item.Name), SqlClause.FromParameter(i, item.GetValue(values))));
+                i++;
+            }
+
+            return new SqlQuery(this, SqlClause.Join(" ", updateClause, SqlClause.Join(", ", clauses)), 0);
         }
 
         public string AsSql()

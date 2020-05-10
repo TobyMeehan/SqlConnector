@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using TobyMeehan.Sql.Extensions;
+using TobyMeehan.Sql.QueryBuilder;
 
 namespace TobyMeehan.Sql
 {
@@ -13,22 +14,10 @@ namespace TobyMeehan.Sql
     {
         private string GetUpdateQuery(Expression<Predicate<T>> expression, object columns, out object parameters)
         {
-            var properties = columns.GetType().GetProperties();
-            var whereClause = _whereBuilder.ToSql(expression);
-
-            string sql = $"UPDATE {TableName} SET " +
-                $"{string.Join(", ", properties.Select(x => $"{_nameResolver.ResolveColumn(x.Name)} = {GetParameterValue(x, columns)}"))}" +
-                $" WHERE " +
-                $"{whereClause.Sql}";
-
-            foreach (var item in columns.ToDictionary())
-            {
-                whereClause.Parameters.Add(item.Key, item.Value);
-            }
-
-            parameters = whereClause.Parameters.ToDynamic();
-
-            return sql;
+            return new SqlQuery(TableName)
+                .Update(columns)
+                .Where(expression)
+                .AsSql(out parameters);
         }
 
         public virtual int Update(Expression<Predicate<T>> expression, object value)
