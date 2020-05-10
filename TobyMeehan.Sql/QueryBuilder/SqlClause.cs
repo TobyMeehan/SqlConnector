@@ -8,24 +8,25 @@ namespace TobyMeehan.Sql.QueryBuilder
 {
     public class SqlClause
     {
+        public SqlClause() { }
+
+        public SqlClause(string sql)
+        {
+            Sql = sql;
+        }
+
+        public SqlClause(string sql, Dictionary<string, object> parameters)
+        {
+            Sql = sql;
+            Parameters = parameters;
+        }
+
         public string Sql { get; set; }
         public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
 
-        public static SqlClause FromSql(string sql)
-        {
-            return new SqlClause
-            {
-                Sql = sql
-            };
-        }
-
         public static SqlClause FromParameter(int count, object value)
         {
-            return new SqlClause
-            {
-                Parameters = { { count.ToString(), value } },
-                Sql = $"@{count}"
-            };
+            return new SqlClause($"@{count}", new Dictionary<string, object> { { count.ToString(), value } });
         }
 
         public static SqlClause FromCollection(ref int countStart, IEnumerable<object> values)
@@ -35,9 +36,16 @@ namespace TobyMeehan.Sql.QueryBuilder
 
             foreach (var value in values)
             {
-                parameters.Add(countStart.ToString(), value);
-                sql.Append($"@{countStart}");
-                countStart++;
+                if (value is SqlString s)
+                {
+                    sql.Append($"{s},");
+                }
+                else
+                {
+                    parameters.Add(countStart.ToString(), value);
+                    sql.Append($"@{countStart},");
+                    countStart++;
+                }
             }
 
             if (sql.Length == 1)
@@ -47,11 +55,26 @@ namespace TobyMeehan.Sql.QueryBuilder
 
             sql[sql.Length - 1] = ')';
 
-            return new SqlClause
+            return new SqlClause(sql.ToString(), parameters);
+        }
+
+        public static SqlClause Join(string separator, params SqlClause[] clauses)
+        {
+            return Join(separator, clauses.AsEnumerable());
+        }
+
+        public static SqlClause Join(string separator, IEnumerable<SqlClause> clauses)
+        {
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+
+            foreach (var clause in clauses)
             {
-                Parameters = parameters,
-                Sql = sql.ToString()
-            };
+                parameters = parameters.Union(clause.Parameters).ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            string sql = string.Join(separator, clauses.Select(x => x.Sql));
+
+            return new SqlClause(sql, parameters);
         }
 
         public static SqlClause Concat(string @operator, SqlClause operand)

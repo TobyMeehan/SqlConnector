@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace TobyMeehan.Sql.QueryBuilder
@@ -10,7 +12,7 @@ namespace TobyMeehan.Sql.QueryBuilder
     {
         public WhereSqlClause(Expression<Predicate<T>> expression, ref int parameterCount)
         {
-            SqlClause child = Evaluate(ref parameterCount, expression, true);
+            SqlClause child = Evaluate(ref parameterCount, expression.Body, true);
 
             Sql = $"WHERE {child.Sql}";
             Parameters = child.Parameters;
@@ -34,7 +36,7 @@ namespace TobyMeehan.Sql.QueryBuilder
 
                 if (value is int)
                 {
-                    return FromSql(value.ToString());
+                    return new SqlClause(value.ToString());
                 }
 
                 if (value is string)
@@ -44,7 +46,7 @@ namespace TobyMeehan.Sql.QueryBuilder
 
                 if (value is bool && isUnary)
                 {
-                    return Concat(FromParameter(i++, value), "=", FromSql("1"));
+                    return Concat(FromParameter(i++, value), "=", new SqlClause("1"));
                 }
 
                 return FromParameter(i++, value);
@@ -61,7 +63,7 @@ namespace TobyMeehan.Sql.QueryBuilder
                         return Concat(Evaluate(ref i, expression), "=", FromParameter(i++, true));
                     }
 
-                    return FromSql(column);
+                    return new SqlClause(column);
                 }
 
                 if (member.Member is FieldInfo)
