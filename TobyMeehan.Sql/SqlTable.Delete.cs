@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using TobyMeehan.Sql.Extensions;
+using TobyMeehan.Sql.QueryBuilder;
 
 namespace TobyMeehan.Sql
 {
@@ -12,13 +13,10 @@ namespace TobyMeehan.Sql
     {
         private string GetDeleteQuery(Expression<Predicate<T>> expression, out object parameters)
         {
-            var whereClause = _whereBuilder.ToSql(expression);
-
-            string sql = $"DELETE FROM {TableName} WHERE {whereClause}";
-
-            parameters = whereClause.Parameters.ToDynamic();
-
-            return sql;
+            return new SqlQuery(TableName)
+                .Delete()
+                .Where(expression)
+                .AsSql(out parameters);
         }
 
         public virtual int Delete(Expression<Predicate<T>> expression)

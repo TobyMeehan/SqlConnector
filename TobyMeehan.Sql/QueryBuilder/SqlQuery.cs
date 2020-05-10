@@ -89,6 +89,11 @@ namespace TobyMeehan.Sql.QueryBuilder
             return new SqlQuery(this, SqlClause.Join(" ", updateClause, SqlClause.Join(", ", clauses)), 0);
         }
 
+        public SqlQuery Delete()
+        {
+            return new SqlQuery(this, new SqlClause($"DELETE FROM {_tableName}"), 0);
+        }
+
         public string AsSql()
         {
             return string.Join(" ", _clauses.Select(x => x.Sql));
