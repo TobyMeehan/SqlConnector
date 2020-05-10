@@ -15,6 +15,10 @@ namespace TobyMeehan.Sql.QueryBuilder
     {
         private readonly string _tableName;
 
+        /// <summary>
+        /// Creates a new instance of the SqlQuery class, with the provided table name.
+        /// </summary>
+        /// <param name="tableName"></param>
         public SqlQuery(string tableName)
         {
             _tableName = tableName;
@@ -44,17 +48,37 @@ namespace TobyMeehan.Sql.QueryBuilder
         private int _parameterCount = 1;
         private Dictionary<string, object> _parameters = new Dictionary<string, object>();
 
+        /// <summary>
+        /// Executes the query only on records matching the provided expression.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         public SqlQuery Where<T>(Expression<Predicate<T>> expression)
         {
             return new SqlQuery(this, new WhereSqlClause<T>(expression, ref _parameterCount));
         }
 
+        /// <summary>
+        /// Selects all columns from the table.
+        /// </summary>
+        /// <returns></returns>
         public SqlQuery Select() => Select("*");
+        /// <summary>
+        /// Selects the provided columns from the table.
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
         public SqlQuery Select(params string[] columns)
         {
             return new SqlQuery(this, new SqlClause($"SELECT {string.Join(", ", columns)} FROM {_tableName}"), 0);
         }
 
+        /// <summary>
+        /// Inserts a new record into the table.
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public SqlQuery Insert(object values)
         {
             var properties = values.GetType().GetProperties().Select(x => x.Name);
@@ -70,6 +94,11 @@ namespace TobyMeehan.Sql.QueryBuilder
             return new SqlQuery(this, sql, 0);
         }
 
+        /// <summary>
+        /// Updates records in the table.
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public SqlQuery Update(object values)
         {
             var properties = values.GetType().GetProperties();
@@ -89,16 +118,29 @@ namespace TobyMeehan.Sql.QueryBuilder
             return new SqlQuery(this, SqlClause.Join(" ", updateClause, SqlClause.Join(", ", clauses)), 0);
         }
 
+        /// <summary>
+        /// Deletes records from the table.
+        /// </summary>
+        /// <returns></returns>
         public SqlQuery Delete()
         {
             return new SqlQuery(this, new SqlClause($"DELETE FROM {_tableName}"), 0);
         }
 
+        /// <summary>
+        /// Gets the SQL query as a string.
+        /// </summary>
+        /// <returns></returns>
         public string AsSql()
         {
             return string.Join(" ", _clauses.Select(x => x.Sql));
         }
 
+        /// <summary>
+        /// Gets the SQL query as a string and outputs the generated parameters.
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         public string AsSql(out Dictionary<string, object> parameters)
         {
             parameters = _parameters;
@@ -106,6 +148,11 @@ namespace TobyMeehan.Sql.QueryBuilder
             return AsSql();
         }
 
+        /// <summary>
+        /// Gets the SQL query as a string and outputs the generated parameters.
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         public string AsSql(out object parameters)
         {
             parameters = _parameters.ToDynamic();

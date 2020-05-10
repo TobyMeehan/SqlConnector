@@ -8,7 +8,7 @@ using System.Text;
 
 namespace TobyMeehan.Sql.QueryBuilder
 {
-    public class WhereSqlClause<T> : SqlClause
+    class WhereSqlClause<T> : SqlClause
     {
         public WhereSqlClause(Expression<Predicate<T>> expression, ref int parameterCount)
         {

@@ -18,7 +18,7 @@ namespace TobyMeehan.Sql
             _nameResolver = nameResolver;
         }
 
-        private string TableName => _nameResolver.ResolveTable(typeof(T));
+        private string TableName => _nameResolver.Resolve(typeof(T));
 
         private string GetParameterValue(PropertyInfo property, object obj)
         {

@@ -4,6 +4,9 @@ using System.Text;
 
 namespace TobyMeehan.Sql
 {
+    /// <summary>
+    /// String that is not parameterised when generating SQL queries.
+    /// </summary>
     public class SqlString
     {
         public SqlString(string value)
