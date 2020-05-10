@@ -9,7 +9,7 @@ namespace TobyMeehan.Sql.QueryBuilder
     public class SqlClause
     {
         public string Sql { get; set; }
-        public Dictionary<string, object> Parameters { get; set; }
+        public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
 
         public static SqlClause FromSql(string sql)
         {
