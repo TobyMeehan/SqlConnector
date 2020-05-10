@@ -138,7 +138,7 @@ namespace TobyMeehan.Sql.QueryBuilder
         {
             var objectMember = Expression.Convert(member, typeof(object));
             var getterLambda = Expression.Lambda<Func<object>>(objectMember);
-            return getterLambda.Compile();
+            return getterLambda.Compile().Invoke();
         }
 
         private static string NodeTypeToString(ExpressionType nodeType)
