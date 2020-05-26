@@ -11,22 +11,21 @@ namespace TobyMeehan.Sql.QueryBuilder
     /// <summary>
     /// Class representing a complete SQL query.
     /// </summary>
-    public class SqlQuery
+    public class SqlQuery<T>
     {
         private readonly string _tableName;
 
         /// <summary>
-        /// Creates a new instance of the SqlQuery class, with the provided table name.
+        /// Creates a new instance of the SqlQuery class.
         /// </summary>
-        /// <param name="tableName"></param>
-        public SqlQuery(string tableName)
+        public SqlQuery()
         {
-            _tableName = tableName;
+            _tableName = typeof(T).GetSqlName() ?? typeof(T).Name;
         }
 
-        private SqlQuery(SqlQuery sqlQuery, SqlClause addition, int? index = null)
+        private SqlQuery(SqlQuery<T> sqlQuery, SqlClause addition, int? index = null)
         {
-            _tableName = sqlQuery._tableName;
+            _tableName = typeof(T).GetSqlName() ?? typeof(T).Name;
             _clauses = sqlQuery._clauses;
             _parameters = sqlQuery._parameters;
 
@@ -51,27 +50,64 @@ namespace TobyMeehan.Sql.QueryBuilder
         /// <summary>
         /// Executes the query only on records matching the provided expression.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public SqlQuery Where<T>(Expression<Predicate<T>> expression)
+        public SqlQuery<T> Where(Expression<Predicate<T>> expression)
         {
-            return new SqlQuery(this, new WhereSqlClause<T>(expression, ref _parameterCount));
+            return new SqlQuery<T>(this, SqlClause.Join(" ", new SqlClause("WHERE"), SqlExpression.FromExpression(expression.Body, ref _parameterCount)));
         }
+
+        private SqlQuery<T> Join<TJoin>(string joinType, Expression<Func<T, TJoin, bool>> expression)
+        {
+            string table = typeof(TJoin).GetSqlName() ?? typeof(TJoin).Name;
+
+            return new SqlQuery<T>(this, SqlClause.Join(" ",
+                new SqlClause($"{joinType} JOIN {table} ON"),
+                SqlExpression.FromExpression(expression.Body, ref _parameterCount)));
+        }
+
+        /// <summary>
+        /// Selects records with matching values in both tables.
+        /// </summary>
+        /// <typeparam name="TJoin">Table to join with.</typeparam>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public SqlQuery<T> InnerJoin<TJoin>(Expression<Func<T, TJoin, bool>> expression) => Join("INNER", expression);
+        /// <summary>
+        /// Selects any matched records from the right table.
+        /// </summary>
+        /// <typeparam name="TJoin">Table to join with.</typeparam>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public SqlQuery<T> LeftJoin<TJoin>(Expression<Func<T, TJoin, bool>> expression) => Join("LEFT", expression);
+        /// <summary>
+        /// Selects any matched records from the left table.
+        /// </summary>
+        /// <typeparam name="TJoin">Table to join with.</typeparam>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public SqlQuery<T> RightJoin<TJoin>(Expression<Func<T, TJoin, bool>> expression) => Join("RIGHT", expression);
+        /// <summary>
+        /// Selects all records with a match in either table.
+        /// </summary>
+        /// <typeparam name="TJoin">Table to join with.</typeparam>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public SqlQuery<T> FullJoin<TJoin>(Expression<Func<T, TJoin, bool>> expression) => Join("FULL OUTER", expression);
 
         /// <summary>
         /// Selects all columns from the table.
         /// </summary>
         /// <returns></returns>
-        public SqlQuery Select() => Select("*");
+        public SqlQuery<T> Select() => Select("*");
         /// <summary>
         /// Selects the provided columns from the table.
         /// </summary>
         /// <param name="columns"></param>
         /// <returns></returns>
-        public SqlQuery Select(params string[] columns)
+        public SqlQuery<T> Select(params string[] columns)
         {
-            return new SqlQuery(this, new SqlClause($"SELECT {string.Join(", ", columns)} FROM {_tableName}"), 0);
+            return new SqlQuery<T>(this, new SqlClause($"SELECT {string.Join(", ", columns)} FROM {_tableName}"), 0);
         }
 
         /// <summary>
@@ -79,7 +115,7 @@ namespace TobyMeehan.Sql.QueryBuilder
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public SqlQuery Insert(object values)
+        public SqlQuery<T> Insert(object values)
         {
             var properties = values.GetType().GetProperties().Select(x => x.Name);
 
@@ -91,7 +127,7 @@ namespace TobyMeehan.Sql.QueryBuilder
                 new SqlClause(") VALUES "),
                 SqlClause.FromCollection(ref i, values.ToDictionary().Select(x => x.Value)));
 
-            return new SqlQuery(this, sql, 0);
+            return new SqlQuery<T>(this, sql, 0);
         }
 
         /// <summary>
@@ -99,7 +135,7 @@ namespace TobyMeehan.Sql.QueryBuilder
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public SqlQuery Update(object values)
+        public SqlQuery<T> Update(object values)
         {
             var properties = values.GetType().GetProperties();
 
@@ -115,16 +151,16 @@ namespace TobyMeehan.Sql.QueryBuilder
                 i++;
             }
 
-            return new SqlQuery(this, SqlClause.Join(" ", updateClause, SqlClause.Join(", ", clauses)), 0);
+            return new SqlQuery<T>(this, SqlClause.Join(" ", updateClause, SqlClause.Join(", ", clauses)), 0);
         }
 
         /// <summary>
         /// Deletes records from the table.
         /// </summary>
         /// <returns></returns>
-        public SqlQuery Delete()
+        public SqlQuery<T> Delete()
         {
-            return new SqlQuery(this, new SqlClause($"DELETE FROM {_tableName}"), 0);
+            return new SqlQuery<T>(this, new SqlClause($"DELETE FROM {_tableName}"), 0);
         }
 
         /// <summary>

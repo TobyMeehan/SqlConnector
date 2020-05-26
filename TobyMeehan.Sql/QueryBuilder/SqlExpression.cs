@@ -1,24 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
+using TobyMeehan.Sql.Extensions;
 
 namespace TobyMeehan.Sql.QueryBuilder
 {
-    class WhereSqlClause<T> : SqlClause
+    class SqlExpression : SqlClause    
     {
-        public WhereSqlClause(Expression<Predicate<T>> expression, ref int parameterCount)
+        public static SqlClause FromExpression(Expression expression, ref int parameterCount)
         {
-            SqlClause child = Evaluate(ref parameterCount, expression.Body, true);
-
-            Sql = $"WHERE {child.Sql}";
-            Parameters = child.Parameters;
+            return Evaluate(ref parameterCount, expression, true);
         }
 
-        private SqlClause Evaluate(ref int i, Expression expression, bool isUnary = false)
+        private static SqlClause Evaluate(ref int i, Expression expression, bool isUnary = false)
         {
             if (expression is UnaryExpression unary)
             {
@@ -56,14 +52,15 @@ namespace TobyMeehan.Sql.QueryBuilder
             {
                 if (member.Member is PropertyInfo property)
                 {
-                    string column = property.Name;
+                    string columnName = property.GetSqlName() ?? property.Name;
+                    string tableName = property.ReflectedType.GetSqlName() ?? property.ReflectedType.Name;
 
                     if (isUnary && member.Type == typeof(bool))
                     {
                         return Concat(Evaluate(ref i, expression), "=", FromParameter(i++, true));
                     }
 
-                    return new SqlClause(column);
+                    return new SqlClause($"{tableName}.{columnName}");
                 }
 
                 if (member.Member is FieldInfo)
