@@ -64,6 +64,23 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
             Assert.Equal("1", parameters["1"]);
         }
 
+        [Fact]
+        public void Join_ShouldGenerateComplexJoin()
+        {
+            string actual = new SqlQuery<EntityModel>()
+                .Select()
+                .LeftJoin<UserEntity>((e, ue) => e.Id == ue.EntityId)
+                .LeftJoin<UserEntity, UserModel>((ue, u) => ue.UserId == u.Id)
+                .Where(e => e.Id == "qwertyasdf")
+                .AsSql(out Dictionary<string, object> parameters);
+
+            Assert.Equal("SELECT * FROM entities " +
+                "LEFT JOIN userentities ON (entities.Id = userentities.EntityId) " +
+                "LEFT JOIN users ON (userentities.UserId = users.Id) " +
+                "WHERE (entities.Id = @1)", actual);
+            Assert.Equal("qwertyasdf", parameters["1"]);
+        }
+
         [Theory]
         [InlineData("INSERT INTO entities (Id, Title, Description) VALUES (UUID(),@1,@2)")]
         public void Insert_ShouldGenerateQuery(string expected)
