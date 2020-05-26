@@ -14,7 +14,7 @@ namespace TobyMeehan.Sql
     {
         private string GetUpdateQuery(Expression<Predicate<T>> expression, object columns, out object parameters)
         {
-            return new SqlQuery(TableName)
+            return new SqlQuery<T>()
                 .Update(columns)
                 .Where(expression)
                 .AsSql(out parameters);

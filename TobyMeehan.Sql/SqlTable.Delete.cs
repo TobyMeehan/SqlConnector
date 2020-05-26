@@ -13,7 +13,7 @@ namespace TobyMeehan.Sql
     {
         private string GetDeleteQuery(Expression<Predicate<T>> expression, out object parameters)
         {
-            return new SqlQuery(TableName)
+            return new SqlQuery<T>()
                 .Delete()
                 .Where(expression)
                 .AsSql(out parameters);

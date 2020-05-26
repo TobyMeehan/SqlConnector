@@ -13,7 +13,7 @@ namespace TobyMeehan.Sql
     {
         private string GetInsertQuery(object values)
         {
-            return new SqlQuery(TableName)
+            return new SqlQuery<T>()
                 .Insert(values)
                 .AsSql();
         }

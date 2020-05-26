@@ -16,7 +16,7 @@ namespace TobyMeehan.Sql
 
         private string GetSelectQuery(params string[] columns)
         {
-            return new SqlQuery(TableName)
+            return new SqlQuery<T>()
                 .Select(columns)
                 .AsSql();
         }
@@ -43,7 +43,7 @@ namespace TobyMeehan.Sql
 
         private string GetSelectByQuery(Expression<Predicate<T>> expression, out object parameters, params string[] columns)
         {
-            return new SqlQuery(TableName)
+            return new SqlQuery<T>()
                 .Select(columns)
                 .Where(expression)
                 .AsSql(out parameters);

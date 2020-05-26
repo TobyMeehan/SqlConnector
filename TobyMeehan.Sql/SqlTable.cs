@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using System.Text;
+using TobyMeehan.Sql.Extensions;
 using TobyMeehan.Sql.QueryBuilder;
 
 namespace TobyMeehan.Sql
@@ -10,15 +11,11 @@ namespace TobyMeehan.Sql
     public partial class SqlTable<T> : ISqlTable<T>
     {
         private readonly IDbConnection _connection;
-        private readonly IDbNameResolver _nameResolver;
 
-        public SqlTable(IDbConnection connection, IDbNameResolver nameResolver)
+        public SqlTable(IDbConnection connection)
         {
             _connection = connection;
-            _nameResolver = nameResolver;
         }
-
-        private string TableName => _nameResolver.Resolve(typeof(T));
 
         private string GetParameterValue(PropertyInfo property, object obj)
         {
