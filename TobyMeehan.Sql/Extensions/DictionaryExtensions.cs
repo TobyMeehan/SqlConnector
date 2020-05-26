@@ -9,7 +9,14 @@ namespace TobyMeehan.Sql.Extensions
     {
         public static dynamic ToDynamic(this IDictionary<string, object> dictionary)
         {
-            return (ExpandoObject)dictionary;
+            ICollection<KeyValuePair<string, object>> obj = new ExpandoObject();
+
+            foreach (var item in dictionary)
+            {
+                obj.Add(item);
+            }
+
+            return obj;
         }
     }
 }
