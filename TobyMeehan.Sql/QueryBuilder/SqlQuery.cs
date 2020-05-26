@@ -57,12 +57,21 @@ namespace TobyMeehan.Sql.QueryBuilder
             return new SqlQuery<T>(this, SqlClause.Join(" ", new SqlClause("WHERE"), SqlExpression.FromExpression(expression.Body, ref _parameterCount)));
         }
 
-        private SqlQuery<T> Join<TJoin>(string joinType, Expression<Func<T, TJoin, bool>> expression)
+        //private SqlQuery<T> Join<TJoin>(string joinType, Expression<Func<T, TJoin, bool>> expression)
+        //{
+        //    return Join<T, TJoin>(joinType, expression);
+        //}
+
+        private SqlQuery<T> Join<TLeft, TRight>(string joinType, Expression<Func<TLeft, TRight, bool>> expression)
         {
-            string table = typeof(TJoin).GetSqlName() ?? typeof(TJoin).Name;
+            Type leftTable = typeof(TLeft);
+            Type rightTable = typeof(TRight);
+
+            string leftTableName = leftTable.GetSqlName() ?? leftTable.Name;
+            string rightTableName = rightTable.GetSqlName() ?? rightTable.Name;
 
             return new SqlQuery<T>(this, SqlClause.Join(" ",
-                new SqlClause($"{joinType} JOIN {table} ON"),
+                new SqlClause($"{joinType} JOIN {rightTableName} ON"),
                 SqlExpression.FromExpression(expression.Body, ref _parameterCount)));
         }
 
@@ -74,12 +83,24 @@ namespace TobyMeehan.Sql.QueryBuilder
         /// <returns></returns>
         public SqlQuery<T> InnerJoin<TJoin>(Expression<Func<T, TJoin, bool>> expression) => Join("INNER", expression);
         /// <summary>
+        /// Selects records with matching values in both tables.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public SqlQuery<T> InnerJoin<TLeft, TRight>(Expression<Func<TLeft, TRight, bool>> expression) => Join("INNER", expression);
+        /// <summary>
         /// Selects any matched records from the right table.
         /// </summary>
         /// <typeparam name="TJoin">Table to join with.</typeparam>
         /// <param name="expression"></param>
         /// <returns></returns>
         public SqlQuery<T> LeftJoin<TJoin>(Expression<Func<T, TJoin, bool>> expression) => Join("LEFT", expression);
+        /// <summary>
+        /// Selects any matched records from the right table.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public SqlQuery<T> LeftJoin<TLeft, TRight>(Expression<Func<TLeft, TRight, bool>> expression) => Join("LEFT", expression);
         /// <summary>
         /// Selects any matched records from the left table.
         /// </summary>
@@ -88,12 +109,24 @@ namespace TobyMeehan.Sql.QueryBuilder
         /// <returns></returns>
         public SqlQuery<T> RightJoin<TJoin>(Expression<Func<T, TJoin, bool>> expression) => Join("RIGHT", expression);
         /// <summary>
+        /// Selects any matched records from the left table.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public SqlQuery<T> RightJoin<TLeft, TRight>(Expression<Func<TLeft, TRight, bool>> expression) => Join("RIGHT", expression);
+        /// <summary>
         /// Selects all records with a match in either table.
         /// </summary>
         /// <typeparam name="TJoin">Table to join with.</typeparam>
         /// <param name="expression"></param>
         /// <returns></returns>
         public SqlQuery<T> FullJoin<TJoin>(Expression<Func<T, TJoin, bool>> expression) => Join("FULL OUTER", expression);
+        /// <summary>
+        /// Selects all records with a match in either table.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public SqlQuery<T> FullJoin<TLeft, TRight>(Expression<Func<TLeft, TRight, bool>> expression) => Join("FULL OUTER", expression);
 
         /// <summary>
         /// Selects all columns from the table.
