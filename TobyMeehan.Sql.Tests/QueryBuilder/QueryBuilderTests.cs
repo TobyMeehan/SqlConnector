@@ -12,11 +12,11 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
     public class QueryBuilderTests
     {
         [Theory]
-        [InlineData("SELECT * FROM Entities", "Entities", "*")]
-        [InlineData("SELECT Title, Description FROM Entities", "Entities", "Title, Description")]
-        public void Select_ShouldGenerateSimpleSelect(string expected, string tableName, params string[] columns)
+        [InlineData("SELECT * FROM entities", "*")]
+        [InlineData("SELECT Title, Description FROM entities", "Title, Description")]
+        public void Select_ShouldGenerateSimpleSelect(string expected, params string[] columns)
         {
-            string actual = new SqlQuery(tableName)
+            string actual = new SqlQuery<EntityModel>()
                 .Select(columns)
                 .AsSql();
 
@@ -24,13 +24,12 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         }
 
         [Theory]
-        [InlineData("SELECT * FROM Entities WHERE (Id = @1)", "Entities", "7")]
-        [InlineData("SELECT * FROM User WHERE (Id = @1)", "User", "qwerty")]
-        public void Select_ShouldGenerateSimpleWhereClause(string expected, string tableName, string id)
+        [InlineData("SELECT * FROM entities WHERE (entities.Id = @1)", "7")]
+        public void Select_ShouldGenerateSimpleWhereClause(string expected, string id)
         {
-            string actual = new SqlQuery(tableName)
+            string actual = new SqlQuery<EntityModel>()
                 .Select()
-                .Where<EntityModel>(x => x.Id == id)
+                .Where(x => x.Id == id)
                 .AsSql(out Dictionary<string, object> parameters);
 
             Assert.Equal(expected, actual);
@@ -38,13 +37,12 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         }
 
         [Theory]
-        [InlineData("SELECT * FROM Entities WHERE ((Title = @1) AND (Description = @2))", "Entities", "Title", "Description", "*")]
-        [InlineData("SELECT Id, Title, Description FROM Things WHERE ((Title = @1) AND (Description = @2))", "Things", "Foo", "Bar", "Id", "Title", "Description")]
-        public void Select_ShouldGenerateComplexWhereClause(string expected, string tableName, string title, string description, params string[] columns)
+        [InlineData("SELECT * FROM entities WHERE ((entities.Title = @1) AND (entities.Description = @2))", "Title", "Description", "*")]
+        public void Select_ShouldGenerateComplexWhereClause(string expected, string title, string description, params string[] columns)
         {
-            string actual = new SqlQuery(tableName)
+            string actual = new SqlQuery<EntityModel>()
                 .Select(columns)
-                .Where<EntityModel>(x => x.Title == title && x.Description == description)
+                .Where(x => x.Title == title && x.Description == description)
                 .AsSql(out Dictionary<string, object> parameters);
 
             Assert.Equal(expected, actual);
@@ -52,11 +50,25 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
             Assert.Equal(parameters["2"], description);
         }
 
-        [Theory]
-        [InlineData("INSERT INTO Entities (Id, Title, Description) VALUES (UUID(),@1,@2)", "Entities")]
-        public void Insert_ShouldGenerateQuery(string expected, string tableName)
+        [Fact]
+        public void Join_ShouldGenerateJoinClause()
         {
-            string actual = new SqlQuery(tableName)
+            string actual = new SqlQuery<EntityModel>()
+                .Select()
+                .InnerJoin<UserModel>((e, u) => u.Name == e.Title)
+                .LeftJoin<UserModel>((e, u) => u.Id == e.Description)
+                .Where(e => e.Id == "1")
+                .AsSql(out Dictionary<string, object> parameters);
+
+            Assert.Equal("SELECT * FROM entities INNER JOIN users ON (users.Name = entities.Title) LEFT JOIN users ON (users.Id = entities.Description) WHERE (entities.Id = @1)", actual);
+            Assert.Equal("1", parameters["1"]);
+        }
+
+        [Theory]
+        [InlineData("INSERT INTO entities (Id, Title, Description) VALUES (UUID(),@1,@2)")]
+        public void Insert_ShouldGenerateQuery(string expected)
+        {
+            string actual = new SqlQuery<EntityModel>()
                 .Insert(new
                 {
                     Id = new SqlString("UUID()"),
@@ -71,10 +83,10 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         }
 
         [Theory]
-        [InlineData("UPDATE Entities SET Title = @1, Description = @2", "Entities", "Foo", "Bar")]
-        public void Update_ShouldGenerateSimpleQuery(string expected, string tableName, string title, string description)
+        [InlineData("UPDATE entities SET Title = @1, Description = @2", "Foo", "Bar")]
+        public void Update_ShouldGenerateSimpleQuery(string expected, string title, string description)
         {
-            string actual = new SqlQuery(tableName)
+            string actual = new SqlQuery<EntityModel>()
                 .Update(new
                 {
                     Title = title,
@@ -88,16 +100,16 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         }
 
         [Theory]
-        [InlineData("UPDATE Entities SET Title = @1, Description = @2 WHERE (Id = @3)", "Entities", "36484", "Foo", "Bar")]
-        public void Update_ShouldGenerateComplexQuery(string expected, string tableName, string id, string title, string description)
+        [InlineData("UPDATE entities SET Title = @1, Description = @2 WHERE (entities.Id = @3)", "36484", "Foo", "Bar")]
+        public void Update_ShouldGenerateComplexQuery(string expected, string id, string title, string description)
         {
-            string actual = new SqlQuery(tableName)
+            string actual = new SqlQuery<EntityModel>()
                 .Update(new
                 {
                     Title = title,
                     Description = description
                 })
-                .Where<EntityModel>(x => x.Id == id)
+                .Where(x => x.Id == id)
                 .AsSql(out Dictionary<string, object> parameters);
 
             Assert.Equal(expected, actual);
@@ -107,10 +119,10 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         }
 
         [Theory]
-        [InlineData("DELETE FROM Entities", "Entities")]
-        public void Delete_ShouldGenerateSimpleQuery(string expected, string tableName)
+        [InlineData("DELETE FROM entities")]
+        public void Delete_ShouldGenerateSimpleQuery(string expected)
         {
-            string actual = new SqlQuery(tableName)
+            string actual = new SqlQuery<EntityModel>()
                 .Delete()
                 .AsSql();
 
@@ -118,12 +130,12 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         }
 
         [Theory]
-        [InlineData("DELETE FROM Entities WHERE (Id = @1)", "Entities", "373")]
-        public void Delete_ShouldGenerateComplexQuery(string expected, string tableName, string id)
+        [InlineData("DELETE FROM entities WHERE (entities.Id = @1)", "373")]
+        public void Delete_ShouldGenerateComplexQuery(string expected, string id)
         {
-            string actual = new SqlQuery(tableName)
+            string actual = new SqlQuery<EntityModel>()
                 .Delete()
-                .Where<EntityModel>(x => x.Id == id)
+                .Where(x => x.Id == id)
                 .AsSql(out Dictionary<string, object> parameters);
 
             Assert.Equal(expected, actual);

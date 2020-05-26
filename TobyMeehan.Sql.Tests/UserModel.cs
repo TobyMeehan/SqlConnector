@@ -7,12 +7,11 @@ using TobyMeehan.Sql.QueryBuilder;
 
 namespace TobyMeehan.Sql.Tests
 {
-    [SqlName("entities")]
-    public class EntityModel
+    [SqlName("users")]
+    public class UserModel
     {
         public string Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
+        public string Name { get; set; }
 
     }
 }
