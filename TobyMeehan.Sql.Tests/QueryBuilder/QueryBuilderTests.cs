@@ -51,6 +51,24 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         }
 
         [Fact]
+        public void Where_ShouldNotFailWithMethodCall()
+        {
+            UserModel user = new UserModel { Id = "8" };
+
+            string actual = new SqlQuery<EntityModel>()
+                .Where(x => x.Id == GetId(user))
+                .AsSql(out Dictionary<string, object> parameters);
+
+            Assert.Equal("WHERE (entities.Id = @1)", actual);
+            Assert.Equal("8", parameters["1"]);
+        }
+
+        private string GetId(UserModel user)
+        {
+            return user.Id;
+        }
+
+        [Fact]
         public void Join_ShouldGenerateJoinClause()
         {
             string actual = new SqlQuery<EntityModel>()
