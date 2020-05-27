@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -224,7 +225,7 @@ namespace TobyMeehan.Sql.QueryBuilder
         /// <returns></returns>
         public string AsSql(out object parameters)
         {
-            parameters = _parameters.ToDynamic();
+            parameters = new DynamicParameters(_parameters);
 
             return AsSql();
         }
