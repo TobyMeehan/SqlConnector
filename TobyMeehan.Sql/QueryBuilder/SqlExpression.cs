@@ -78,6 +78,18 @@ namespace TobyMeehan.Sql.QueryBuilder
                 throw new ArgumentException(nameof(expression), "Expression does not refer to a property or field.");
             }
 
+            if (expression is MethodCallExpression method)
+            {
+                var value = GetMethodExpressionValue(method);
+
+                if (value is string)
+                {
+                    value = (string)value;
+                }
+
+                return FromParameter(i++, value);
+            }
+
             throw new ArgumentException(nameof(expression), $"Unsupported expression '{expression.GetType().Name}'");
         }
 
@@ -86,6 +98,11 @@ namespace TobyMeehan.Sql.QueryBuilder
             var objectMember = Expression.Convert(member, typeof(object));
             var getterLambda = Expression.Lambda<Func<object>>(objectMember);
             return getterLambda.Compile().Invoke();
+        }
+
+        private static object GetMethodExpressionValue(MethodCallExpression expression)
+        {
+            return Expression.Lambda(expression).Compile().DynamicInvoke();
         }
 
         private static string DotNetNodeToSql(ExpressionType nodeType)
