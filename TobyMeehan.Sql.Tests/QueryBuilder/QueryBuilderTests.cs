@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -61,6 +62,19 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
 
             Assert.Equal("WHERE (entities.Id = @1)", actual);
             Assert.Equal("8", parameters["1"]);
+        }
+
+        [Fact]
+        public void Where_ShouldParameteriseCorrectly()
+        {
+            string actual = new SqlQuery<EntityModel>()
+                .Where(x => x.Id == "8")
+                .AsSql(out object parameters);
+
+            DynamicParameters param = parameters as DynamicParameters;
+
+            Assert.Equal("WHERE (entities.Id = @1)", actual);
+            Assert.Equal("8", param.Get<string>("1"));
         }
 
         private string GetId(UserModel user)
