@@ -8,9 +8,8 @@ using TobyMeehan.Sql.QueryBuilder;
 namespace TobyMeehan.Sql.Tests
 {
     [SqlName("entities")]
-    public class EntityModel
+    public class EntityModel : EntityBase
     {
-        public string Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
 
