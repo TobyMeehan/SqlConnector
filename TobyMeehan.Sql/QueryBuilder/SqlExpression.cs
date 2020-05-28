@@ -53,7 +53,7 @@ namespace TobyMeehan.Sql.QueryBuilder
                 if (member.Member is PropertyInfo property)
                 {
                     string columnName = property.GetSqlName() ?? property.Name;
-                    string tableName = property.ReflectedType.GetSqlName() ?? property.ReflectedType.Name;
+                    string tableName = member.Expression.Type.GetSqlName() ?? member.Expression.Type.Name; // property.ReflectedType is not used due to inheritance problems
 
                     if (isUnary && member.Type == typeof(bool))
                     {
