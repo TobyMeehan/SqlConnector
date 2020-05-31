@@ -6,7 +6,7 @@ using System.Text;
 
 namespace TobyMeehan.Sql.QueryBuilder
 {
-    class SqlClause
+    public class SqlClause
     {
         public SqlClause() { }
 
