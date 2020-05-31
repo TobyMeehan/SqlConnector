@@ -49,7 +49,20 @@ namespace TobyMeehan.Sql
                 .AsSql(out parameters);
         }
 
+        private string GetSelectByQuery<TForeign>(Expression<Func<T, TForeign, bool>> expression, out object parameters, params string[] columns)
+        {
+            return new SqlQuery<T>()
+                .Select(columns)
+                .Where(expression)
+                .AsSql(out parameters);
+        }
+
         public virtual IEnumerable<T> SelectBy(Expression<Predicate<T>> expression)
+        {
+            return _connection.Query<T>(GetSelectByQuery(expression, out object parameters, "*"), parameters);
+        }
+
+        public virtual IEnumerable<T> SelectBy<TForeign>(Expression<Func<T, TForeign, bool>> expression)
         {
             return _connection.Query<T>(GetSelectByQuery(expression, out object parameters, "*"), parameters);
         }
@@ -59,12 +72,27 @@ namespace TobyMeehan.Sql
             return _connection.Query<T>(GetSelectByQuery(expression, out object parameters, columns), parameters);
         }
 
+        public virtual IEnumerable<T> SelectBy<TForeign>(Expression<Func<T, TForeign, bool>> expression, params string[] columns)
+        {
+            return _connection.Query<T>(GetSelectByQuery(expression, out object parameters, columns), parameters);
+        }
+
         public virtual Task<IEnumerable<T>> SelectByAsync(Expression<Predicate<T>> expression)
         {
             return _connection.QueryAsync<T>(GetSelectByQuery(expression, out object parameters, "*"), parameters);
         }
 
+        public virtual Task<IEnumerable<T>> SelectByAsync<TForeign>(Expression<Func<T, TForeign, bool>> expression)
+        {
+            return _connection.QueryAsync<T>(GetSelectByQuery(expression, out object parameters, "*"), parameters);
+        }
+
         public virtual Task<IEnumerable<T>> SelectByAsync(Expression<Predicate<T>> expression, params string[] columns)
+        {
+            return _connection.QueryAsync<T>(GetSelectByQuery(expression, out object parameters, columns), parameters);
+        }
+
+        public virtual Task<IEnumerable<T>> SelectByAsync<TForeign>(Expression<Func<T, TForeign, bool>> expression, params string[] columns)
         {
             return _connection.QueryAsync<T>(GetSelectByQuery(expression, out object parameters, columns), parameters);
         }

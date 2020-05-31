@@ -32,11 +32,27 @@ namespace TobyMeehan.Sql
         IEnumerable<T> SelectBy(Expression<Predicate<T>> expression);
 
         /// <summary>
+        /// On a join query, selects records from the table based on an expression of a foreign table.
+        /// </summary>
+        /// <typeparam name="TForeign"></typeparam>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        IEnumerable<T> SelectBy<TForeign>(Expression<Func<T, TForeign, bool>> expression);
+
+        /// <summary>
         /// Gets all records from the table that match the provided conditions.
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
         IEnumerable<T> SelectBy(Expression<Predicate<T>> expression, params string[] columns);
+
+        /// <summary>
+        /// On a join query, selects records from the table based on an expression of a foreign table.
+        /// </summary>
+        /// <typeparam name="TForeign"></typeparam>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        IEnumerable<T> SelectBy<TForeign>(Expression<Func<T, TForeign, bool>> expression, params string[] columns);
 
         /// <summary>
         /// Gets all records from the table asynchronously.
@@ -58,11 +74,27 @@ namespace TobyMeehan.Sql
         Task<IEnumerable<T>> SelectByAsync(Expression<Predicate<T>> expression);
 
         /// <summary>
+        /// On a join query, selects records from the table based on an expression of a foreign table.
+        /// </summary>
+        /// <typeparam name="TForeign"></typeparam>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        Task<IEnumerable<T>> SelectByAsync<TForeign>(Expression<Func<T, TForeign, bool>> expression);
+
+        /// <summary>
         /// Gets all records from the table that match the provided conditions asynchronously.
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
         Task<IEnumerable<T>> SelectByAsync(Expression<Predicate<T>> expression, params string[] columns);
+
+        /// <summary>
+        /// On a join query, selects records from the table based on an expression of a foreign table.
+        /// </summary>
+        /// <typeparam name="TForeign"></typeparam>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        Task<IEnumerable<T>> SelectByAsync<TForeign>(Expression<Func<T, TForeign, bool>> expression, params string[] columns);
 
         /// <summary>
         /// Inserts the provided values into the table.

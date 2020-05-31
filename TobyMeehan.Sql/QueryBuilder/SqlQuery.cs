@@ -48,20 +48,25 @@ namespace TobyMeehan.Sql.QueryBuilder
         private int _parameterCount = 1;
         private Dictionary<string, object> _parameters = new Dictionary<string, object>();
 
+        private SqlQuery<T> Where(Expression expression)
+        {
+            return new SqlQuery<T>(this, SqlClause.Join(" ", new SqlClause("WHERE"), SqlExpression.FromExpression(expression, ref _parameterCount)));
+        }
+
         /// <summary>
         /// Executes the query only on records matching the provided expression.
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public SqlQuery<T> Where(Expression<Predicate<T>> expression)
-        {
-            return new SqlQuery<T>(this, SqlClause.Join(" ", new SqlClause("WHERE"), SqlExpression.FromExpression(expression.Body, ref _parameterCount)));
-        }
+        public SqlQuery<T> Where(Expression<Predicate<T>> expression) => Where(expression.Body);
 
-        //private SqlQuery<T> Join<TJoin>(string joinType, Expression<Func<T, TJoin, bool>> expression)
-        //{
-        //    return Join<T, TJoin>(joinType, expression);
-        //}
+        /// <summary>
+        /// Executes the query only on records matching the provided expression, using columns from a foreign table.
+        /// </summary>
+        /// <typeparam name="TForeign"></typeparam>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public SqlQuery<T> Where<TForeign>(Expression<Func<T, TForeign, bool>> expression) => Where(expression.Body);
 
         private SqlQuery<T> Join<TLeft, TRight>(string joinType, Expression<Func<TLeft, TRight, bool>> expression)
         {
