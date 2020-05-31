@@ -12,22 +12,21 @@ namespace TobyMeehan.Sql
 {
     public partial class SqlTable<T> : ISqlTable<T>
     {
-        private string GetUpdateQuery(Expression<Predicate<T>> expression, object columns, out object parameters)
+        private ExecutableSqlQuery<T> GetUpdateQuery(Expression<Predicate<T>> expression, object columns)
         {
-            return new SqlQuery<T>()
+            return _queryFactory.Executable<T>()
                 .Update(columns)
-                .Where(expression)
-                .AsSql(out parameters);
+                .Where(expression);
         }
 
         public virtual int Update(Expression<Predicate<T>> expression, object value)
         {
-            return _connection.Execute(GetUpdateQuery(expression, value, out object parameters), parameters);
+            return GetUpdateQuery(expression, value).Execute();
         }
 
         public virtual Task<int> UpdateAsync(Expression<Predicate<T>> expression, object value)
         {
-            return _connection.ExecuteAsync(GetUpdateQuery(expression, value, out object parameters), parameters);
+            return GetUpdateQuery(expression, value).ExecuteAsync();
         }
     }
 }

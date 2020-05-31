@@ -11,21 +11,20 @@ namespace TobyMeehan.Sql
 {
     public partial class SqlTable<T> : ISqlTable<T>
     {
-        private string GetInsertQuery(object values)
+        private ExecutableSqlQuery<T> GetInsertQuery(object values)
         {
-            return new SqlQuery<T>()
-                .Insert(values)
-                .AsSql();
+            return _queryFactory.Executable<T>()
+                .Insert(values);
         }
 
         public virtual int Insert(object values)
         {
-            return _connection.Execute(GetInsertQuery(values), values);
+            return GetInsertQuery(values).Execute();
         }
 
         public virtual Task<int> InsertAsync(object values)
         {
-            return _connection.ExecuteAsync(GetInsertQuery(values), values);
+            return GetInsertQuery(values).ExecuteAsync();
         }
     }
 }

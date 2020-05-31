@@ -11,22 +11,21 @@ namespace TobyMeehan.Sql
 {
     public partial class SqlTable<T> : ISqlTable<T>
     {
-        private string GetDeleteQuery(Expression<Predicate<T>> expression, out object parameters)
+        private ExecutableSqlQuery<T> GetDeleteQuery(Expression<Predicate<T>> expression)
         {
-            return new SqlQuery<T>()
+            return _queryFactory.Executable<T>()
                 .Delete()
-                .Where(expression)
-                .AsSql(out parameters);
+                .Where(expression);
         }
 
         public virtual int Delete(Expression<Predicate<T>> expression)
         {
-            return _connection.Execute(GetDeleteQuery(expression, out object parameters), parameters);
+            return GetDeleteQuery(expression).Execute();
         }
 
         public virtual Task<int> DeleteAsync(Expression<Predicate<T>> expression)
         {
-            return _connection.ExecuteAsync(GetDeleteQuery(expression, out object parameters), parameters);
+            return GetDeleteQuery(expression).ExecuteAsync();
         }
     }
 }

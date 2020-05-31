@@ -48,11 +48,11 @@ namespace TobyMeehan.Sql.QueryBuilder
         /// <summary>
         /// Executes the SQL.
         /// </summary>
-        public void Execute()
+        public int Execute()
         {
             using (_connection)
             {
-                _connection.Execute(AsSql(out object parameters), parameters);
+                return _connection.Execute(AsSql(out object parameters), parameters);
             }
         }
 
@@ -60,7 +60,7 @@ namespace TobyMeehan.Sql.QueryBuilder
         /// Executes the SQL asynchronously.
         /// </summary>
         /// <returns></returns>
-        public Task ExecuteAsync()
+        public Task<int> ExecuteAsync()
         {
             using (_connection)
             {
