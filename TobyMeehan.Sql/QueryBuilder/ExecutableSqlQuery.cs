@@ -21,6 +21,8 @@ namespace TobyMeehan.Sql.QueryBuilder
             return new ExecutableSqlQuery<T>(source._connection);
         }
 
+        #region Synchronous Queries
+
         /// <summary>
         /// Executes the SQL as a query.
         /// </summary>
@@ -29,21 +31,183 @@ namespace TobyMeehan.Sql.QueryBuilder
         {
             using (_connection)
             {
-                return _connection.Query<T>(AsSql(out object parameters), parameters); 
+                return _connection.Query<T>(AsSql(out object param), param); 
             }
         }
-        
+
         /// <summary>
-        /// Executes the SQL as a query asynchronously.
+        /// Executes the SQL as a multi-mapping query with 2 input types.
         /// </summary>
+        /// <param name="map">Function to map row types to return type.</param>
         /// <returns></returns>
-        public Task<IEnumerable<T>> QueryAsync()
+        public IEnumerable<T> Query<T1>(Func<T, T1, T> map)
         {
             using (_connection)
             {
-                return _connection.QueryAsync<T>(AsSql(out object parameters), parameters);
+                return _connection.Query(AsSql(out object param), map, param);
             }
         }
+
+        /// <summary>
+        /// Executes the SQL as a multi-mapping query with 3 input types.
+        /// </summary>
+        /// <param name="map">Function to map row types to return type.</param>
+        /// <returns></returns>
+        public IEnumerable<T> Query<T1, T2>(Func<T, T1, T2, T> map)
+        {
+            using (_connection)
+            {
+                return _connection.Query(AsSql(out object param), map, param);
+            }
+        }
+
+        /// <summary>
+        /// Executes the SQL as a multi-mapping query with 4 input types.
+        /// </summary>
+        /// <param name="map">Function to map row types to return type.</param>
+        /// <returns></returns>
+        public IEnumerable<T> Query<T1, T2, T3>(Func<T, T1, T2, T3, T> map)
+        {
+            using (_connection)
+            {
+                return _connection.Query(AsSql(out object param), map, param);
+            }
+        }
+
+        /// <summary>
+        /// Executes the SQL as a multi-mapping query with 5 input types.
+        /// </summary>
+        /// <param name="map">Function to map row types to return type.</param>
+        /// <returns></returns>
+        public IEnumerable<T> Query<T1, T2, T3, T4>(Func<T, T1, T2, T3, T4, T> map)
+        {
+            using (_connection)
+            {
+                return _connection.Query(AsSql(out object param), map, param);
+            }
+        }
+
+        /// <summary>
+        /// Executes the SQL as a multi-mapping query with 6 input types.
+        /// </summary>
+        /// <param name="map">Function to map row types to return type.</param>
+        /// <returns></returns>
+        public IEnumerable<T> Query<T1, T2, T3, T4, T5>(Func<T, T1, T2, T3, T4, T5, T> map)
+        {
+            using (_connection)
+            {
+                return _connection.Query(AsSql(out object param), map, param);
+            }
+        }
+
+        /// <summary>
+        /// Executes the SQL as a multi-mapping query with 7 input types.
+        /// </summary>
+        /// <param name="map">Function to map row types to return type.</param>
+        /// <returns></returns>
+        public IEnumerable<T> Query<T1, T2, T3, T4, T5, T6>(Func<T, T1, T2, T3, T4, T5, T6, T> map)
+        {
+            using (_connection)
+            {
+                return _connection.Query(AsSql(out object param), map, param);
+            }
+        }
+
+        #endregion
+
+        #region Async Queries
+
+        /// <summary>
+        /// Asynchronously executes the SQL as a query.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<T>> QueryAsync()
+        {
+            using (_connection)
+            {
+                return await _connection.QueryAsync<T>(AsSql(out object param), param);
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously executes the SQL as a multi-mapping query with 2 input types.
+        /// </summary>
+        /// <param name="map">Function to map row types to return type.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<T>> QueryAsync<T1>(Func<T, T1, T> map)
+        {
+            using (_connection)
+            {
+                return await _connection.QueryAsync(AsSql(out object param), map, param);
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously executes the SQL as a multi-mapping query with 3 input types.
+        /// </summary>
+        /// <param name="map">Function to map row types to return type.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<T>> QueryAsync<T1, T2>(Func<T, T1, T2, T> map)
+        {
+            using (_connection)
+            {
+                return await _connection.QueryAsync(AsSql(out object param), map, param);
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously executes the SQL as a multi-mapping query with 4 input types.
+        /// </summary>
+        /// <param name="map">Function to map row types to return type.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<T>> QueryAsync<T1, T2, T3>(Func<T, T1, T2, T3, T> map)
+        {
+            using (_connection)
+            {
+                return await _connection.QueryAsync(AsSql(out object param), map, param);
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously executes the SQL as a multi-mapping query with 5 input types.
+        /// </summary>
+        /// <param name="map">Function to map row types to return type.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<T>> QueryAsync<T1, T2, T3, T4>(Func<T, T1, T2, T3, T4, T> map)
+        {
+            using (_connection)
+            {
+                return await _connection.QueryAsync(AsSql(out object param), map, param);
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously executes the SQL as a multi-mapping query with 6 input types.
+        /// </summary>
+        /// <param name="map">Function to map row types to return type.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<T>> QueryAsync<T1, T2, T3, T4, T5>(Func<T, T1, T2, T3, T4, T5, T> map)
+        {
+            using (_connection)
+            {
+                return await _connection.QueryAsync(AsSql(out object param), map, param);
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously executes the SQL as a multi-mapping query with 7 input types.
+        /// </summary>
+        /// <param name="map">Function to map row types to return type.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<T>> QueryAsync<T1, T2, T3, T4, T5, T6>(Func<T, T1, T2, T3, T4, T5, T6, T> map)
+        {
+            using (_connection)
+            {
+                return await _connection.QueryAsync(AsSql(out object param), map, param);
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Executes the SQL.
