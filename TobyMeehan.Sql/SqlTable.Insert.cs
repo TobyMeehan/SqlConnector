@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -11,20 +12,26 @@ namespace TobyMeehan.Sql
 {
     public partial class SqlTable<T> : ISqlTable<T>
     {
-        private ExecutableSqlQuery<T> GetInsertQuery(object values)
+        private ISqlQuery<T> GetInsertQuery(object values)
         {
-            return _queryFactory.Executable<T>()
+            return new SqlQuery<T>()
                 .Insert(values);
         }
 
         public virtual int Insert(object values)
         {
-            return GetInsertQuery(values).Execute();
+            using (IDbConnection connection = _connection.Invoke())
+            {
+                return connection.Execute(GetInsertQuery(values));
+            }
         }
 
         public virtual Task<int> InsertAsync(object values)
         {
-            return GetInsertQuery(values).ExecuteAsync();
+            using (IDbConnection connection = _connection.Invoke())
+            {
+                return connection.ExecuteAsync(GetInsertQuery(values));
+            }
         }
     }
 }

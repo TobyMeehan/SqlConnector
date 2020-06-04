@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,21 +12,27 @@ namespace TobyMeehan.Sql
 {
     public partial class SqlTable<T> : ISqlTable<T>
     {
-        private ExecutableSqlQuery<T> GetDeleteQuery(Expression<Predicate<T>> expression)
+        private ISqlQuery<T> GetDeleteQuery(Expression<Predicate<T>> expression)
         {
-            return _queryFactory.Executable<T>()
+            return new SqlQuery<T>()
                 .Delete()
                 .Where(expression);
         }
 
         public virtual int Delete(Expression<Predicate<T>> expression)
         {
-            return GetDeleteQuery(expression).Execute();
+            using (IDbConnection connection = _connection.Invoke())
+            {
+                return connection.Execute(GetDeleteQuery(expression));
+            }
         }
 
         public virtual Task<int> DeleteAsync(Expression<Predicate<T>> expression)
         {
-            return GetDeleteQuery(expression).ExecuteAsync();
+            using (IDbConnection connection = _connection.Invoke())
+            {
+                return connection.ExecuteAsync(GetDeleteQuery(expression));
+            }
         }
     }
 }
