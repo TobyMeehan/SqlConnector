@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.3.1</Version>
+    <Version>0.4.0</Version>
     <Authors>Toby Meehan</Authors>
     <Company>Toby Meehan</Company>
     <Description>Library for connecting to a generic SQL database, and generating SQL queries.</Description>
