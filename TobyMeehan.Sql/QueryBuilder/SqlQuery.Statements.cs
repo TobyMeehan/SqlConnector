@@ -51,7 +51,7 @@ namespace TobyMeehan.Sql.QueryBuilder
 
         public ISqlQuery<T> Delete()
         {
-            return Clone(new SqlClause($"DELETE FROM {TableName}"), 0);
+            return Clone(new SqlClause($"DELETE FROM {_tableName}"), 0);
         }
     }
 }
