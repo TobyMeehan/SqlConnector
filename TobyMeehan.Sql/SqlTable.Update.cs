@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -12,21 +13,27 @@ namespace TobyMeehan.Sql
 {
     public partial class SqlTable<T> : ISqlTable<T>
     {
-        private ExecutableSqlQuery<T> GetUpdateQuery(Expression<Predicate<T>> expression, object columns)
+        private ISqlQuery<T> GetUpdateQuery(Expression<Predicate<T>> expression, object columns)
         {
-            return _queryFactory.Executable<T>()
+            return new SqlQuery<T>()
                 .Update(columns)
                 .Where(expression);
         }
 
         public virtual int Update(Expression<Predicate<T>> expression, object value)
         {
-            return GetUpdateQuery(expression, value).Execute();
+            using (IDbConnection connection = _connection.Invoke())
+            {
+                return connection.Execute(GetUpdateQuery(expression, value));
+            }
         }
 
         public virtual Task<int> UpdateAsync(Expression<Predicate<T>> expression, object value)
         {
-            return GetUpdateQuery(expression, value).ExecuteAsync();
+            using (IDbConnection connection = _connection.Invoke())
+            {
+                return connection.ExecuteAsync(GetUpdateQuery(expression, value));
+            }
         }
     }
 }

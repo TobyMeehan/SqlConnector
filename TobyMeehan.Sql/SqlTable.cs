@@ -10,11 +10,11 @@ namespace TobyMeehan.Sql
 {
     public partial class SqlTable<T> : ISqlTable<T>
     {
-        private readonly QueryFactory _queryFactory;
+        private readonly Func<IDbConnection> _connection;
 
-        public SqlTable(QueryFactory queryFactory)
+        public SqlTable(Func<IDbConnection> connection)
         {
-            _queryFactory = queryFactory;
+            _connection = connection;
         }
 
         private string GetParameterValue(PropertyInfo property, object obj)
