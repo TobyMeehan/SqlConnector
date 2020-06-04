@@ -18,13 +18,10 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         {
             using (var mock = AutoMock.GetLoose())
             {
-                mock.Mock<IDbConnection>();
-
-                var factory = mock.Create<QueryFactory>();
-                var query = factory.Query<EntityModel>()
+                var query = new SqlQuery<EntityModel>()
                     .Where(x => x.Id == "E");
 
-                string actual = query.AsSql(out Dictionary<string, object> param);
+                string actual = query.ToSql(out IDictionary<string, object> param);
 
                 Assert.Equal("WHERE (entities.Id = @1)", actual);
 
@@ -37,13 +34,10 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         {
             using (var mock = AutoMock.GetLoose())
             {
-                mock.Mock<IDbConnection>();
-
-                var factory = mock.Create<QueryFactory>();
-                var query = factory.Query<EntityModel>()
+                var query = new SqlQuery<EntityModel>()
                     .Where(x => x.Title == "Foo" && (x.Description == "Bar" || x.Description == "E"));
 
-                string actual = query.AsSql(out Dictionary<string, object> param);
+                string actual = query.ToSql(out IDictionary<string, object> param);
 
                 Assert.Equal("WHERE ((entities.Title = @1) AND ((entities.Description = @2) OR (entities.Description = @3)))", actual);
 
@@ -58,13 +52,10 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         {
             using (var mock = AutoMock.GetLoose())
             {
-                mock.Mock<IDbConnection>();
-
-                var factory = mock.Create<QueryFactory>();
-                var query = factory.Query<EntityModel>()
+                var query = new SqlQuery<EntityModel>()
                     .Where<UserModel>((e, u) => u.Id == "Id");
 
-                string actual = query.AsSql(out Dictionary<string, object> param);
+                string actual = query.ToSql(out IDictionary<string, object> param);
 
                 Assert.Equal("WHERE (users.Id = @1)", actual);
 
@@ -80,13 +71,10 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
 
             using (var mock = AutoMock.GetLoose())
             {
-                mock.Mock<IDbConnection>();
-
-                var factory = mock.Create<QueryFactory>();
-                var query = factory.Query<EntityModel>()
+                var query = new SqlQuery<EntityModel>()
                     .Where(x => x.Id == GetId(entity));
 
-                string actual = query.AsSql(out Dictionary<string, object> param);
+                string actual = query.ToSql(out IDictionary<string, object> param);
 
                 Assert.Equal("WHERE (entities.Id = @1)", actual);
                 Assert.Equal("8", param["1"]);
@@ -98,13 +86,10 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         {
             using (var mock = AutoMock.GetLoose())
             {
-                mock.Mock<IDbConnection>();
-
-                var factory = mock.Create<QueryFactory>();
-                var query = factory.Query<EntityModel>()
+                var query = new SqlQuery<EntityModel>()
                     .Where(x => x.Id == "8");
 
-                string actual = query.AsSql(out object param);
+                string actual = query.ToSql(out object param);
 
                 DynamicParameters dynamic = param as DynamicParameters;
 

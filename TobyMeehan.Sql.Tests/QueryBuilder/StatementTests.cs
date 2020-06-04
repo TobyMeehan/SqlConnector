@@ -18,13 +18,10 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         {
             using (var mock = AutoMock.GetLoose())
             {
-                mock.Mock<IDbConnection>();
-
-                var factory = mock.Create<QueryFactory>();
-                var query = factory.Query<EntityModel>()
+                var query = new SqlQuery<EntityModel>()
                     .Select();
 
-                string actual = query.AsSql();
+                string actual = query.ToSql();
 
                 Assert.Equal("SELECT * FROM entities", actual);
             }
@@ -35,10 +32,7 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         {
             using (var mock = AutoMock.GetLoose())
             {
-                mock.Mock<IDbConnection>();
-
-                var factory = mock.Create<QueryFactory>();
-                var query = factory.Query<EntityModel>()
+                var query = new SqlQuery<EntityModel>()
                     .Insert(new
                     {
                         Id = new SqlString("UUID()"),
@@ -46,7 +40,7 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
                         Description = "Bar"
                     });
 
-                string actual = query.AsSql(out Dictionary<string, object> param);
+                string actual = query.ToSql(out IDictionary<string, object> param);
 
                 Assert.Equal("INSERT INTO entities (Id, Title, Description) VALUES (UUID(),@1,@2)", actual);
 
@@ -60,17 +54,14 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         {
             using (var mock = AutoMock.GetLoose())
             {
-                mock.Mock<IDbConnection>();
-
-                var factory = mock.Create<QueryFactory>();
-                var query = factory.Query<EntityModel>()
+                var query = new SqlQuery<EntityModel>()
                     .Update(new
                     {
                         Title = "Bar",
                         Description = "Foo"
                     });
 
-                string actual = query.AsSql(out Dictionary<string, object> param);
+                string actual = query.ToSql(out IDictionary<string, object> param);
 
                 Assert.Equal("UPDATE entities SET Title = @1, Description = @2", actual);
 
@@ -84,13 +75,10 @@ namespace TobyMeehan.Sql.Tests.QueryBuilder
         {
             using (var mock = AutoMock.GetLoose())
             {
-                mock.Mock<IDbConnection>();
-
-                var factory = mock.Create<QueryFactory>();
-                var query = factory.Query<EntityModel>()
+                var query = new SqlQuery<EntityModel>()
                     .Delete();
 
-                string actual = query.AsSql();
+                string actual = query.ToSql();
 
                 Assert.Equal("DELETE FROM entities", actual);
             }
