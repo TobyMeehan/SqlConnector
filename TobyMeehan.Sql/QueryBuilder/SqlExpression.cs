@@ -9,9 +9,9 @@ namespace TobyMeehan.Sql.QueryBuilder
 {
     class SqlExpression : SqlClause    
     {
-        public static SqlClause FromExpression(Expression expression, ref int parameterCount)
+        public static SqlClause FromExpression(LambdaExpression expression, ref int parameterCount)
         {
-            return Evaluate(ref parameterCount, expression, true);
+            return Evaluate(ref parameterCount, expression.Body, true);
         }
 
         private static SqlClause Evaluate(ref int i, Expression expression, bool isUnary = false)
