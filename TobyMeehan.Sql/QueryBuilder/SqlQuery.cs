@@ -12,7 +12,8 @@ namespace TobyMeehan.Sql.QueryBuilder
             SqlQuery<T> clone = new SqlQuery<T>
             {
                 _clauses = _clauses,
-                _parameters = _parameters
+                _parameters = _parameters,
+                QueryMap = QueryMap
             };
 
             if (index == null)
