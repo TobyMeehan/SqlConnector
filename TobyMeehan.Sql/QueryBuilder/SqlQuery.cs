@@ -35,6 +35,8 @@ namespace TobyMeehan.Sql.QueryBuilder
         {
             return new SqlQuery<T>
             {
+                _clauses = _clauses,
+                _parameters = _parameters,
                 QueryMap = map
             };
         }
